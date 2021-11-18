@@ -1,7 +1,6 @@
 #pragma once
-#include <concepts>
+
 #include <iostream>
-#include <type_traits>
 #include <stdexcept>
 #include <sstream>
 
@@ -90,18 +89,31 @@ namespace testing
             return *this;
         }
 
-        template<typename TestFunction>
-        test_runner& profiled_test(TestFunction func, const std::string& test_name)
-        {
-            output_ << "Profiling result: ";
-            {
-                profiler p(test_name, output_);
-                func();
-            }
-            output_ << std::endl;
-            profiles_ += 1;
-            return *this;
-        }
+		template<typename TestFunction>
+		test_runner& profiled_test(TestFunction func, const std::string& test_name, 
+            std::optional<std::function<void(long long)>> callback = std::nullopt)
+		{
+			profiles_ += 1;
+			output_ << "Profiling " << test_name;
+			try
+			{
+				profiler p("", output_, callback);
+				func();
+				output_ << " OK";
+			}
+			catch (const std::exception& e)
+			{
+				output_ << "\nfail: " << e.what();
+				fails_ += 1;
+			}
+			catch (...)
+			{
+				output_ << "\nUnknown exception";
+				fails_ += 1;
+			}
+			output_ << std::endl;
+			return *this;
+		}
 
         void tests_stat() const
         {
@@ -111,7 +123,8 @@ namespace testing
         }
     };
 
+
 #define RUN_TEST(TEST_FUNC) .run_test(TEST_FUNC, #TEST_FUNC)
-#define RUN_STRESS(TEST_FUNC) .profiled_test(TEST_FUNC, #TEST_FUNC)
+#define RUN_PROF(TEST_FUNC) .profiled_test(TEST_FUNC, #TEST_FUNC, 
 }
 

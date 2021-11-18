@@ -47,7 +47,7 @@ namespace collections
             return *this;
         }
 
-        constexpr dynamic_array_iterator& operator--(int) noexcept
+        constexpr dynamic_array_iterator operator--(int) noexcept
         {
             auto tmp(*this);
             --(*this);

@@ -80,6 +80,13 @@ namespace collections
         constexpr sequence(const Container& container)
             : container_(container) { }
 
+        constexpr sequence(size_t count, const value_type& default_value = {})
+            : container_(count, default_value) { }
+
+        //template<typename ...ArgsTy>
+        //constexpr sequence(ArgsTy&& ...args)
+        //    : container_(std::forward<ArgsTy>(args)...) { }
+
         constexpr sequence(Container&& container)
             : container_(std::move(container)) { }
 
@@ -91,6 +98,7 @@ namespace collections
         constexpr sequence(OtherContainer&& container)
             : container_(std::move_iterator(std::begin(container)),
                 std::move_iterator(std::end(container))) { }
+
 
         consteval size_t csize() const
         {

@@ -3,76 +3,42 @@
 #include <numeric>
 
 
+
+
+#include <vector>
+#include <list>
+
+#include <boost/mpl/vector.hpp>
+
 #include "list_sequence.h"
 #include "sequence.h"
 #include "linked_list.h"
 #include "dynamic_array.h"
-#include <vector>
-#include <list>
 
-#include <random>
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/for_each.hpp>
+#include "testing.h"
 
 using namespace std;
-using namespace boost;
 using namespace collections;
-
+using namespace testing;
 
 template<typename T>
-using b = mpl::vector<linked_list<T>, vector<T>, list<T>, dynamic_array<T>>;
-using a = mpl::vector<int, float, pair<int, int>>;
+using b = boost::mpl::vector<collections::linked_list<T>, std::vector<T>, std::list<T>, collections::dynamic_array<T>>;
+using a = boost::mpl::vector<int, float, std::pair<int, int>>;
+
 
 template <typename Lambda>
 void type_combined_test(Lambda lambda)
 {
-    mpl::for_each<a>([lambda]<typename Type>(Type type)
-    {
-        mpl::for_each<b<Type>>([lambda, type]<typename Container>(Container cont)
-        {
-            lambda(type, cont);
-        });
-    });
+    type_combined_test_template<Lambda, b, a>(lambda);
 }
 
 template <typename Lambda>
 void type_double_combined_test(Lambda lambda)
 {
-    mpl::for_each<a>([lambda]<typename Type>(Type type)
-    {
-        mpl::for_each<b<Type>>([lambda, type]<typename Container>(Container cont)
-        {
-            mpl::for_each<b<Type>>([lambda, type, cont]<typename Container2>(Container2 cont2)
-            {
-                lambda(type, cont, cont2);
-            });
-        });
-    });
+	type_double_combined_test_template<Lambda, b, a>(lambda);
 }
 
-uniform_int_distribution<> range;
-mt19937 gen(time(nullptr));
-auto random = bind(range, gen);
 
-template <typename T>
-struct random_generator_impl
-{
-    T operator()()
-    {
-        return static_cast<T>(random());
-    }
-};
-
-template <typename T>
-random_generator_impl<T> random_generator;
-
-template <typename T, typename U>
-struct random_generator_impl<pair<T, U>> {
-    pair<T, U> operator()()
-    {
-        return pair{ random_generator<T>(), random_generator<T>() };
-    }
-};
 
 TEST(sequence, constructors)
 {
@@ -80,7 +46,7 @@ TEST(sequence, constructors)
     {
         size_t n = 5;
         C l(n);
-        generate(begin(l), end(l), random_generator<T>);
+        generate(begin(l), end(l), random_generator<T>());
         T data[3] = {random_generator<T>(), random_generator<T>(), random_generator<T>()};
 
         sequence<C> a;
@@ -105,7 +71,7 @@ TEST(sequence, cutting)
     type_combined_test([]<typename T, typename Container>(T ty, Container co) {
         size_t n = 5;
         Container ll(n);
-        generate(begin(ll), end(ll), random_generator<T>);
+        generate(begin(ll), end(ll), random_generator<T>());
         sequence<Container> seq(ll);
         {
             auto&& [l, r] = seq.cut(2);
@@ -138,7 +104,7 @@ TEST(sequence, subsequenses)
     type_combined_test([]<typename T, typename Container>(T ty, Container co) {
         size_t n = 5;
         Container ll(n);
-        generate(begin(ll), end(ll), random_generator<T>);
+        generate(begin(ll), end(ll), random_generator<T>());
         sequence<Container> seq(ll);
         {
             auto l = seq.get_subsequence(0, 2);
@@ -176,10 +142,10 @@ TEST(sequence, append_back_seq)
         size_t n = 2;
         size_t m = 3;
         Container container1(n);
-        generate(begin(container1), end(container1), random_generator<T>);
+        generate(begin(container1), end(container1), random_generator<T>());
 
         Container2 container2(m);
-        generate(begin(container2), end(container2), random_generator<T>);
+        generate(begin(container2), end(container2), random_generator<T>());
         {
             sequence<Container> seq(container1);
             sequence<Container> seq2(container2);
@@ -219,10 +185,10 @@ TEST(sequence, append_front_seq)
         size_t n = 5;
         size_t m = 100;
         Container container1(n);
-        generate(begin(container1), end(container1), random_generator<T>);
+        generate(begin(container1), end(container1), random_generator<T>());
 
         Container2 container2(m);
-        generate(begin(container2), end(container2), random_generator<T>);
+        generate(begin(container2), end(container2), random_generator<T>());
         {
             sequence<Container> seq(container1);
             sequence<Container> seq2(container2);
@@ -262,10 +228,10 @@ TEST(sequence, insert_seq)
         size_t n = 5;
         size_t m = 100;
         Container container1(n);
-        generate(begin(container1), end(container1), random_generator<T>);
+        generate(begin(container1), end(container1), random_generator<T>());
 
         Container2 container2(m);
-        generate(begin(container2), end(container2), random_generator<T>);
+        generate(begin(container2), end(container2), random_generator<T>());
         {
             sequence<Container> seq(container1);
             sequence<Container> seq2(container2);

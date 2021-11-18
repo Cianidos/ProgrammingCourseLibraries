@@ -8,30 +8,33 @@ using namespace std;
 #include <functional>
 #include <random>
 
-std::uniform_int_distribution<> range;
-std::mt19937 gen(time(nullptr));
-auto random = bind(range, gen);
+#include "testing.h"
+using namespace testing;
 
-template <typename T>
-struct random_generator_impl
-{
-    T operator()()
-    {
-        return static_cast<T>(random());
-    }
-};
+//std::uniform_int_distribution<> range;
+//std::mt19937 gen(time(nullptr));
+//auto random = bind(range, gen);
+//
+//template <typename T>
+//struct random_generator_impl
+//{
+//    T operator()()
+//    {
+//        return static_cast<T>(random());
+//    }
+//};
+//
+//
+//template <typename T, typename U>
+//struct random_generator_impl<std::pair<T, U>> {
+//    std::pair<T, U> operator()()
+//    {
+//        return std::pair{ random_generator<T>(), random_generator<T>() };
+//    }
+//};
 
-template <typename T>
-random_generator_impl<T> random_generator;
 
-template <typename T, typename U>
-struct random_generator_impl<std::pair<T, U>> {
-    std::pair<T, U> operator()()
-    {
-        return std::pair{ random_generator<T>(), random_generator<T>() };
-    }
-};
-
+/*
 template<typename IteratorLhs, typename IteratorRhs>
 constexpr bool is_equal_collections
 (
@@ -57,6 +60,8 @@ constexpr bool is_equal_collections
     }
     return true;
 }
+*/
+
 template<typename RangeLhs, typename RangeRhs>
 constexpr bool is_equal_collections(const RangeLhs& lhs, const RangeRhs& rhs)
 {
@@ -70,7 +75,7 @@ constexpr bool is_equal_collections(const RangeLhs& lhs, const RangeRhs& rhs)
 TEST(BinaryTree, sorting)
 {
     std::vector<int> data(10000);
-    ranges::generate(data, random_generator<int>);
+    std::generate(data.begin(), data.end(), random_generator<int>{});
 
     {
         std::set correct(data.begin(), data.end());

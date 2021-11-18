@@ -160,7 +160,7 @@ namespace collections
 
         constexpr node_iterator_impl operator--(int)
         {
-            constexpr node_iterator_impl tmp(current_node_, list_edge_);
+            node_iterator_impl tmp(current_node_, list_edge_);
             --(*this);
             return tmp;
         }

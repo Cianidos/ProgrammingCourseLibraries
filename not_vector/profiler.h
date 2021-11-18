@@ -2,6 +2,7 @@
 #include <chrono>
 #include <iostream>
 #include <utility>
+#include <functional>
 
 namespace testing
 {
@@ -12,6 +13,7 @@ namespace testing
         std::chrono::time_point<clock> start_;
         std::string message_;
         std::ostream& output_;
+        std::optional<std::function<void(long long)>> callback = std::nullopt;
 
     public:
         profiler() = delete;
@@ -23,17 +25,24 @@ namespace testing
 
         explicit profiler(
             std::string profiling_message = {},
-            std::ostream& otp = std::cerr
+            std::ostream& otp = std::cerr,
+			std::optional<std::function<void(long long)>> callback = std::nullopt
         )
             : start_(clock::now()),
             message_(std::move(profiling_message)),
-            output_(otp) {}
+            output_(otp),
+            callback(std::move(callback)) {}
+
+
 
         ~profiler()
         {
-            output_ << message_ << " : " << std::chrono::duration_cast<
-                std::chrono::milliseconds>(clock::now() - start_).count()
-                << " ms";
+            auto now = clock::now();
+            auto result = std::chrono::duration_cast<std::chrono::microseconds>(now - start_).count();
+
+        	output_ << message_ << " : " << result << " mics";
+            if (callback.has_value())
+                callback.value()(result);
         }
     };
 

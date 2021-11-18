@@ -48,9 +48,6 @@
     <ClInclude Include="sequence_deprecated.h">
       <Filter>Header Files\collections</Filter>
     </ClInclude>
-    <ClInclude Include="collector.h">
-      <Filter>Header Files\testing</Filter>
-    </ClInclude>
     <ClInclude Include="profiler.h">
       <Filter>Header Files\testing</Filter>
     </ClInclude>
